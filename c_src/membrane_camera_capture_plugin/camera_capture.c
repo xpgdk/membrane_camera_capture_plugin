@@ -65,11 +65,16 @@ UNIFEX_TERM read_packet(UnifexEnv *env, State *state) {
     goto end;
   }
 
+  int timebase_num = state->input_ctx->streams[0]->time_base.num;
+  int timebase_den = state->input_ctx->streams[0]->time_base.den;
+
+  int64_t pts = packet.pts * (1000000000/timebase_den) / timebase_num;
+
   UnifexPayload payload;
   unifex_payload_alloc(env, UNIFEX_PAYLOAD_BINARY, packet.size, &payload);
   memcpy(payload.data, packet.data, packet.size);
 
-  ret = read_packet_result_ok(env, &payload);
+  ret = read_packet_result_ok(env, &payload, pts);
   unifex_payload_release(&payload);
 end:
   av_packet_unref(&packet);

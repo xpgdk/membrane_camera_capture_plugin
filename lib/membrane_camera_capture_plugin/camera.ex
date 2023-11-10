@@ -61,8 +61,8 @@ defmodule Membrane.CameraCapture do
       :stop -> :ok
     after
       0 ->
-        with {:ok, frame} <- Native.read_packet(native) do
-          buffer = %Buffer{payload: frame}
+        with {:ok, frame, pts} <- Native.read_packet(native) do
+          buffer = %Buffer{payload: frame, pts: pts}
           send(target, {:frame_provider, buffer})
           frame_provider(native, target)
         else
